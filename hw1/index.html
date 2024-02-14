@@ -1,97 +1,400 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html>
 <head>
-	<style>
-		body {
-			padding: 100px;
-			width: 1000px;
-			margin: auto;
-			text-align: left;
-			font-weight: 300;
-			font-family: 'Open Sans', sans-serif;
-			color: #121212;
+	<title>CS 184/284A Rasterizer</title>
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+	<style type="text/css">
+		ul.lst-kix_1h1bbole4dps-8 {
+			list-style-type: none
 		}
 
-		h1, h2, h3, h4 {
-			font-family: 'Source Sans Pro', sans-serif;
+		.lst-kix_ym6cm9keuwr7-2 > li:before {
+			content: "\0025a0   "
+		}
+
+		.lst-kix_ym6cm9keuwr7-3 > li:before {
+			content: "\0025cf   "
+		}
+
+		ul.lst-kix_1h1bbole4dps-3 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_1h1bbole4dps-2 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_1h1bbole4dps-1 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_1h1bbole4dps-0 {
+			list-style-type: none
+		}
+
+		.lst-kix_ym6cm9keuwr7-5 > li:before {
+			content: "\0025a0   "
+		}
+
+		ul.lst-kix_1h1bbole4dps-7 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_1h1bbole4dps-6 {
+			list-style-type: none
+		}
+
+		.lst-kix_ym6cm9keuwr7-4 > li:before {
+			content: "\0025cb   "
+		}
+
+		ul.lst-kix_1h1bbole4dps-5 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_1h1bbole4dps-4 {
+			list-style-type: none
+		}
+
+		.lst-kix_ym6cm9keuwr7-7 > li:before {
+			content: "\0025cb   "
+		}
+
+		.lst-kix_ym6cm9keuwr7-6 > li:before {
+			content: "\0025cf   "
+		}
+
+		.lst-kix_ym6cm9keuwr7-8 > li:before {
+			content: "\0025a0   "
+		}
+
+		.lst-kix_1h1bbole4dps-8 > li:before {
+			content: "\0025a0   "
+		}
+
+		.lst-kix_1h1bbole4dps-6 > li:before {
+			content: "\0025cf   "
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-1 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-2 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-0 {
+			list-style-type: none
+		}
+
+		.lst-kix_1h1bbole4dps-7 > li:before {
+			content: "\0025cb   "
+		}
+
+		.lst-kix_1h1bbole4dps-0 > li:before {
+			content: "\0025cf   "
+		}
+
+		.lst-kix_1h1bbole4dps-1 > li:before {
+			content: "\0025cb   "
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-7 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-8 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-5 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-6 {
+			list-style-type: none
+		}
+
+		.lst-kix_1h1bbole4dps-2 > li:before {
+			content: "\0025a0   "
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-3 {
+			list-style-type: none
+		}
+
+		ul.lst-kix_ym6cm9keuwr7-4 {
+			list-style-type: none
+		}
+
+		.lst-kix_1h1bbole4dps-4 > li:before {
+			content: "\0025cb   "
+		}
+
+		.lst-kix_1h1bbole4dps-5 > li:before {
+			content: "\0025a0   "
+		}
+
+		.lst-kix_ym6cm9keuwr7-1 > li:before {
+			content: "\0025cb   "
+		}
+
+		.lst-kix_1h1bbole4dps-3 > li:before {
+			content: "\0025cf   "
+		}
+
+		.lst-kix_ym6cm9keuwr7-0 > li:before {
+			content: "\0025cf   "
+		}
+
+		ol {
+			margin: 0;
+			padding: 0
+		}
+
+		table td, table th {
+			padding: 0
+		}
+
+		.c4 {
+			color: #000000;
+			font-weight: 400;
+			text-decoration: none;
+			vertical-align: baseline;
+			font-size: 11pt;
+			font-family: "Arial";
+			font-style: normal
+		}
+
+		.c5 {
+			color: #434343;
+			font-weight: 400;
+			text-decoration: none;
+			vertical-align: baseline;
+			font-size: 11pt;
+			font-family: "Arial";
+			font-style: normal
+		}
+
+		.c1 {
+			padding-top: 16pt;
+			padding-bottom: 4pt;
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		.c7 {
+			color: #333333;
+			font-weight: 400;
+			text-decoration: none;
+			vertical-align: baseline;
+			font-size: 11pt;
+			font-family: "Arial";
+			font-style: normal
+		}
+
+		.c6 {
+			color: #434343;
+			font-weight: 400;
+			text-decoration: none;
+			vertical-align: baseline;
+			font-size: 14pt;
+			font-family: "Arial";
+			font-style: normal
+		}
+
+		.c9 {
+			color: #333333;
+			font-weight: 400;
+			text-decoration: none;
+			vertical-align: baseline;
+			font-size: 14pt;
+			font-family: "Arial";
+			font-style: normal
+		}
+
+		.c3 {
+			padding-top: 0pt;
+			padding-bottom: 12pt;
+			line-height: 1.15;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		.c0 {
+			padding-top: 0pt;
+			padding-bottom: 0pt;
+			line-height: 1.15;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		.c8 {
+			text-decoration-skip-ink: none;
+			font-size: 11pt;
+			-webkit-text-decoration-skip: none;
+			color: #1155cc;
+			text-decoration: underline
+		}
+
+		.c11 {
+			background-color: #ffffff;
+			max-width: 468pt;
+			padding: 72pt 72pt 72pt 72pt
+		}
+
+		.c12 {
+			color: inherit;
+			text-decoration: inherit
+		}
+
+		.c13 {
+			font-size: 11pt
+		}
+
+		.c2 {
+			height: 11pt
+		}
+
+		.c10 {
+			color: #333333
+		}
+
+		.title {
+			padding-top: 0pt;
+			color: #000000;
+			font-size: 26pt;
+			padding-bottom: 3pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		.subtitle {
+			padding-top: 0pt;
+			color: #666666;
+			font-size: 15pt;
+			padding-bottom: 16pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		li {
+			color: #000000;
+			font-size: 11pt;
+			font-family: "Arial"
+		}
+
+		p {
+			margin: 0;
+			color: #000000;
+			font-size: 11pt;
+			font-family: "Arial"
+		}
+
+		h1 {
+			padding-top: 20pt;
+			color: #000000;
+			font-size: 20pt;
+			padding-bottom: 6pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		h2 {
+			padding-top: 18pt;
+			color: #000000;
+			font-size: 16pt;
+			padding-bottom: 6pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		h3 {
+			padding-top: 16pt;
+			color: #434343;
+			font-size: 14pt;
+			padding-bottom: 4pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		h4 {
+			padding-top: 14pt;
+			color: #666666;
+			font-size: 12pt;
+			padding-bottom: 4pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		h5 {
+			padding-top: 12pt;
+			color: #666666;
+			font-size: 11pt;
+			padding-bottom: 4pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			orphans: 2;
+			widows: 2;
+			text-align: left
+		}
+
+		h6 {
+			padding-top: 12pt;
+			color: #666666;
+			font-size: 11pt;
+			padding-bottom: 4pt;
+			font-family: "Arial";
+			line-height: 1.15;
+			page-break-after: avoid;
+			font-style: italic;
+			orphans: 2;
+			widows: 2;
+			text-align: left
 		}
 	</style>
-	<title>CS 184/284A Rasterizer</title>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
 </head>
-
-
-<body>
-
+<body class="c11 doc-content">
 	<h1 align="middle">CS 184/284A: Computer Graphics and Imaging, Spring 2024</h1>
 	<h1 align="middle">Homework 1: Rasterizer</h1>
 	<h2 align="middle">Jesse Lutan, Timothy Nguyen</h2>
-
-	<br><br>
-
-	<div>
-
-		<h2 align="middle">Overview</h2>
-		<p>Give a high-level overview of what you implemented in this homework Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.</p>
-
-		<h2 align="middle">Section I: Rasterization</h2>
-
-		<h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
-
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-
-		<div align="middle">
-			<table style="width=100%">
-				<tr>
-					<td>
-						<img src="images/image1.png" align="middle" width="400px" />
-						<figcaption align="middle">Caption goes here.</figcaption>
-					</td>
-					<td>
-						<img src="images/image2.png" align="middle" width="400px" />
-						<figcaption align="middle">Caption goes here.</figcaption>
-					</td>
-				</tr>
-				<br>
-				<tr>
-					<td>
-						<img src="images/image3.png" align="middle" width="400px" />
-						<figcaption align="middle">Caption goes here.</figcaption>
-					</td>
-					<td>
-						<img src="images/image4.png" align="middle" width="400px" />
-						<figcaption align="middle">Caption goes here.</figcaption>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-
-		<h3 align="middle">Part 2: Antialiasing triangles</h3>
-
-
-
-		<h3 align="middle">Part 3: Transforms</h3>
-
-
-
-		<h2 align="middle">Section II: Sampling</h2>
-
-		<h3 align="middle">Part 4: Barycentric coordinates</h3>
-
-
-		<h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
-
-
-		<h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
-
-
-
-		<h2 align="middle">Section III: Art Competition</h2>
-		<p>If you are not participating in the optional art competition, don't worry about this section!</p>
-
-		<h3 align="middle">Part 7: Draw something interesting!</h3>
-
+	<h2 align="middle">Overview</h2>
+	<p>
+	In HW1, we built a rasterizer which supports SVGs, PNGs and texture mapping using nearest point and bilinear interpolation. 
+	We implemented various antialiasing methods including supersampling, pixel and level sampling. 
+	We found the comparison of antialiasing power between the different methods to be the most interesting.
+	</p>
+	<h3 class="c1" id="h.i2gylegf7bmw"><span class="c8"></span></h3><h3 class="c1" id="h.6vmkq7rg1may"><span class="c6">Task 1: Drawing Single-Color Triangles</span></h3><p class="c0"><span class="c4">First, the boundaries of the tightest rectangle enclosing the triangle is found by taking the minimum and maximum of the x and y coordinates to get the coordinates of the top left and bottom right vertices of the rectangle. Every pixel in the rectangle is then iterated over and checked against the three lines point-in-triangle test. If all three L values are &gt;= 0, then the pixel is filled with the given color.</span></p><p class="c0"><span class="c4">This algorithm is exactly the one that checks every pixel in the bounding box of the triangle.</span></p><p class="c0"><span class="c4">When first implemented, white streaks were present in between adjacent triangles. This was fixed by maximizing the bounding box using floor/ceil.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 391.82px; height: 293.86px;"><img alt="" src="images/image12.png" style="width: 391.82px; height: 293.86px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><h3 class="c1" id="h.3rwbrmtxtbfs"><span>Task 2: Antialiasing by Supersampling</span></h3><p class="c3"><span class="c10">In resolve_to_framebuffer(), we made a few significant changes. Using sample_buffer, our algorithm supersamples the rgb values at points by using a sample_buffer with a larger size (and higher resolution) than that of rgb_framebuffer_target. We use a nested for-loop to iterate through all the samples in a pixel and take the average r, g, and b values. This color gets outputted to the frame buffer and colors the entire pixel. Overall, our modification mainly only changed the way that the internal (sample) buffer was translated to the screen (frame) buffer.</span></p><p class="c3"><span class="c7">In the other functions, we mainly just fixed the sample buffer to reflect the new changes. Specifically for each function:</span></p><p class="c3"><span class="c7">fill_pixel(): we fixed the index to reflect the changes of the increased size in the sample buffer. </span></p><p class="c3"><span class="c7">rasterize_triangle(): we changed the start indices and step sizes for iterating over the bounding boxes since we have to iterate at a higher resolution to implement supersampling. We also had to fix the way we call fill_pixel so that it would fill the correct pixel on the larger sample buffer for points and lines, which are not supersampled.</span></p><p class="c3"><span class="c7">set_sample_rate(): we fixed the size of the sample buffer to scale based on the inputted rate. </span></p><p class="c3"><span class="c10">set_framebuffer_target(): we increased the size of the sample buffer by a factor of the sample rate.</span></p><p class="c3"><span class="c7">Supersampling is useful because it allows us to get a more accurate color for pixels that reduces jaggedness and aliasing overall. In effect, the images seem to look sharper, clearer, and better in quality. We used supersampling to antialias our triangles by taking multiple samples for a single pixel thus allowing us to get a more accurate rgb value for each pixel that would decrease aliasing.</span></p><p class="c0"><span>Supersample Rate 1</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 360.11px; height: 249.15px;"><img alt="" src="images/image11.png" style="width: 360.11px; height: 249.15px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Supersample Rate 2</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 363.50px; height: 250.72px;"><img alt="" src="images/image1.png" style="width: 363.50px; height: 250.72px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Supersample Rate 3</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 354.50px; height: 244.67px;"><img alt="" src="images/image9.png" style="width: 354.50px; height: 244.67px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">We observe that the jaggedness of the triangles&rsquo; edges decreases as the supersample rate increases because the increase in samples makes the color of the pixel increasingly accurate to what the true average color of the pixel should be. This makes sense because typically a higher number of unique samples gives a better approximation. Therefore, pixels should blend more smoothly in color and reduce the number of jagged edges.</span></p><p class="c0 c2"><span class="c4"></span></p><h3 class="c1" id="h.5x3ec7r0piop"><span class="c6">Task 3: Transformations</span></h3><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 624.00px; height: 468.00px;"><img alt="" src="images/image2.png" style="width: 624.00px; height: 468.00px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0"><span class="c4">We made the robot into a waving/saluting soldier.</span></p><h3 class="c1" id="h.jbjrwb7sjzoj"><span class="c6">Task 4: Barycentric Coordinates</span></h3><p class="c0"><span class="c4">Barycentric coordinates are a type of coordinate system based on proportions between the vertices of a triangle and their corresponding opposite edges. Each vertex of a triangle represents a distinct value or coordinate in some space. The proportion between the two line segments formed by the line going through a set of 2-D Euclidean coordinates and a vertex defines the Barycentric coordinate corresponding to that vertex. These coordinates define the proportional distance from the point to each vertex and sum to 1. An application of this system is to perform linear interpolation between the vertices of a triangle, which can be used for texture and color mapping such as in the following example.</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 399.50px; height: 301.23px;"><img alt="" src="images/image3.png" style="width: 399.50px; height: 301.23px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0"><span class="c4">The top left, top right and bottom vertices of the above triangle are set to 100% red, green and blue respectively. Every point within the triangle is assigned a color by linear interpolation via a weighted sum of the distances from the point to each vertex.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 405.15px; height: 303.86px;"><img alt="" src="images/image10.png" style="width: 405.15px; height: 303.86px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><h3 class="c1" id="h.lw6v3fm8gxpg"><span>Task 5: Pixel Sampling</span></h3><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Pixel sampling is a method of populating the screen space frame buffer with the material of a texture map. Given a set of coordinates in texture space, we can get the corresponding coordinates in screen space and vice versa using Barycentric coordinates. This allows us to map the texture to our triangle mesh. We implemented texture mapping by picking texture coordinates based on the type of sampling being used. In code, we had to calculate the barycentric coordinates of each point in order to compute the coordinates necessary for retrieving the appropriate texel.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Nearest-pixel sampling maps the texture space value nearest to the point corresponding to the screen space point. Bilinear interpolation interpolates a texture space value between the four defined points closest to the point corresponding screen space point.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Nearest, Sample Rate 1</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 327.91px; height: 245.73px;"><img alt="" src="images/image7.png" style="width: 327.91px; height: 245.73px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0"><span class="c4">Bilinear, Sample Rate 1</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 331.50px; height: 248.63px;"><img alt="" src="images/image5.png" style="width: 331.50px; height: 248.63px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Nearest, Sample Rate 16</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 339.21px; height: 255.10px;"><img alt="" src="images/image13.png" style="width: 339.21px; height: 255.10px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Bilinear, Sample Rate 16</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 334.50px; height: 250.88px;"><img alt="" src="images/image8.png" style="width: 334.50px; height: 250.88px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0"><span class="c4">Nearest, Sample 1 is noticeably worse than the other images because of its jagged edges. Bilinear, Sample 1 is a lot more smoothed out in color and edges.</span></p><p class="c0"><span class="c4">Nearest, Sample 16 has roughly the same level of jaggedness as the prior image.</span></p><p class="c0"><span class="c4">Bilinear, Sample 16 has very slight improvements over Nearest, Sample 16 because of its improved accuracy in choosing colors to smooth out edges and blend pixels. They are not very noticeable though unless looking very up close.</span></p><p class="c0"><span class="c4">The differences overall are much more noticeable when switching between nearest sampling and bilinear sampling at a low sampling rate or switching between a low and high sampling rate on the same type of sampling. This is mainly due to the fact that there is a diminishing increase in quality when the quality is already high.</span></p><h3 class="c1" id="h.l1nuzp3m0ply"><span class="c6">Task 6: Level Sampling</span></h3><p class="c0"><span class="c4">Level sampling, or mipmapping, is a method of texture minification that involves storing multiple &ldquo;levels&rdquo; of a texture image at successively lower resolution and lower maximum signal frequency. These &ldquo;copies&rdquo; of the original texture file are called mipmaps. When sampling a point in texture space, we sample from the file whose resolution approximates the screen sampling rate. This allows us to map a texture while minimizing aliasing in higher frequency areas and minimizing blurring in lower frequency areas.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">We implemented level sampling by computing the differentials of the coordinates in texture space with respect to those of the screen space and computing the appropriate level using the equation derived in lecture. We use this level to find the corresponding mipmap texture file that is sampled when mapping to the screen space.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">Pixel sampling uses minimal additional memory but suffers a notable performance degradation due to the additional lerp and sample operations. Its antialiasing power is less than supersampling but still good.</span></p><p class="c0"><span class="c4">Level sampling is very speed efficient but takes up more storage due to saving multiple &ldquo;copies&rdquo; of the texture image file. It is very powerful for antialiasing because it can dynamically select the level of minification for different areas.</span></p><p class="c0"><span class="c4">Supersampling uses notable additional memory from saving the colors of subpixels and suffers a major performance hit, especially for larger sample rates. However, it has great antialiasing power and can be scaled.</span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">lsm=L_ZERO, psm=P_NEAREST</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 351.44px; height: 263.15px;"><img alt="" src="images/image6.png" style="width: 351.44px; height: 263.15px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0"><span class="c4">lsm=L_ZERO, psm=P_LINEAR</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 353.78px; height: 265.33px;"><img alt="" src="images/image15.png" style="width: 353.78px; height: 265.33px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0 c2"><span class="c4"></span></p><p class="c0"><span class="c4">lsm=L_NEAREST, psm=P_NEAREST</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 354.50px; height: 265.43px;"><img alt="" src="images/image14.png" style="width: 354.50px; height: 265.43px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p><p class="c0"><span class="c4">lsm=L_NEAREST, psm=P_LINEAR</span></p><p class="c0"><span style="overflow: hidden; display: inline-block; margin: 0.00px 0.00px; border: 0.00px solid #000000; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px); width: 359.50px; height: 269.63px;"><img alt="" src="images/image4.png" style="width: 359.50px; height: 269.63px; margin-left: 0.00px; margin-top: 0.00px; transform: rotate(0.00rad) translateZ(0px); -webkit-transform: rotate(0.00rad) translateZ(0px);" title=""></span></p>
 </body>
 </html>
