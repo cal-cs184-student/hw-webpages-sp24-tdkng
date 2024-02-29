@@ -1,7 +1,289 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 2 index.html here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<style>
+		body {
+			padding: 100px;
+			width: 1000px;
+			margin: auto;
+			text-align: left;
+			font-weight: 300;
+			font-family: 'Open Sans', sans-serif;
+			color: #121212;
+		}
+
+		h1, h2, h3, h4 {
+			font-family: 'Source Sans Pro', sans-serif;
+		}
+	</style>
+	<title>CS 184/284A Rasterizer</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+	<h1 align="middle">CS 184/284A: Computer Graphics and Imaging, Spring 2024</h1>
+	<h1 align="middle">Homework 2: MeshEdit</h1>
+	<h2 align="middle">Timothy Nguyen</h2>
+
+	<br><br>
+
+	<div>
+
+		<h2 align="middle">Overview</h2>
+		<p>In this homework, I implemented a mesh editor that would allow me to visualize and edit 2D/3D
+			 mesh using core concepts from computer graphics such as Bezier curves and de Casteljau's algorithm. 
+			 Doing this homework taught me more about how exactly mesh is rendered to get smoother vs sharper shapes.
+			 Upsampling also showed me how meshes can increase their resolution.
+		</p>
+
+		<h2 align="middle">Section I: Bezier Curves and Surfaces</h2>
+
+		<h3 align="middle">Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
+
+		<p>de Casteljau’s algorithm works by using linear interpolation to create intermediate points between all connected
+			points. Then, we continue to recursively calculate intermediate points for our intermediate points until we
+			only have one point left. This last point goes on the Bezier curve. I implemented this by writing code to
+			calculate the set of intermediate points given a vector of points using the given equation.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Step images: (left → right, top → bottom)</p>
+				<tr>
+					<td>
+						<img src="images/p11.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p12.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p13.png" align="middle" width="400px" />
+					</td>
+				</tr>
+				<br>
+				<tr>
+					<td>
+						<img src="images/p14.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p15.png" align="middle" width="400px" />
+					</td>
+				</tr>
+			</table>
+			<table style="width=100%">
+				<p>Modified Bezier Curve</p>
+				<tr>
+					<td>
+						<img src="images/p16.png" align="middle" width="400px" />
+					</td>
+				</tr>
+			</table>
+		</div>
+
+
+		<h3 align="middle">Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
+
+		<p>The de Casteljau algorithm for Bezier surfaces essentially computes the de 
+			Casteljau algorithm for two dimensions rather than just one with Bezier curves.
+			I implemented this by writing functions for the recursive step in one dimension
+			and using that function to write another function which would fully perform
+			the de Casteljau algorithm in one dimension. Then, I used the full 1D function
+			to calculate the Bezier curves for n sets of points and get 1 set of points.
+			This 1 set of points was used to compute the algorithm in the second dimension.
+	   	</p>
+
+	   	<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/p21.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<h2 align="middle">Section II: Triangle Meshes and Half-Edge Data Structure</h2>
+
+		<h3 align="middle">Part 3: Area-weighted vertex normals</h3>
+
+		<p>In my implementation, I started by creating a loop through all the neighboring
+			triangles via halfedges. For the triangle that I was iterating over, I 
+			calculated the area-weighted norm and added it to a total. Once I finished
+			iterating and had my total, I just normalized the sum and returned it. This
+			area-weighted vertex norm is then used to implement Phong shading.
+	   	</p>
+		<div align="middle">
+			<table style="width=100%">
+				<p>Flat Shading:</p>
+				<tr>
+					<td>
+						<img src="images/p31.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+			<table style="width=100%">
+				<p>Phong Shading:</p>
+				<tr>
+					<td>
+						<img src="images/p32.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<h3 align="middle">Part 4: Edge flip</h3>
+
+		<p>I implemented the edge flip operation by first saving any mesh element
+			that I thought would be changed by the flip operation. Then, I drew 
+			out how exactly I wanted to move halfedges and drew out all references 
+			between the halfedges to figure out what exactly I still needed to 
+			update. Looking at the half-edge data structure slide from lecture 
+			8 helped out a lot.
+	   	</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Flip 1 Before and After:</p>
+				<tr>
+					<td>
+						<img src="images/p41.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p42.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+			<table style="width=100%">
+				<p>Flip 2 Before and After:</p>
+				<tr>
+					<td>
+						<img src="images/p43.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p44.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<h3 align="middle">Part 5: Edge split</h3>
+
+		<p>I implemented edge splitting by having a well-drawn out diagram to organize 
+			the relationship between halfedges and other mesh elements. I also made sure 
+			to update every field and every mesh element.
+	   	</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Edge Split 1 Before and After:</p>
+				<tr>
+					<td>
+						<img src="images/p51.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p52.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+			<table style="width=100%">
+				<p>Edge Split 2 Before and After:</p>
+				<tr>
+					<td>
+						<img src="images/p53.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p54.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+			<table style="width=100%">
+				<p>Edge Split and Flip Before and After:</p>
+				<tr>
+					<td>
+						<img src="images/p55.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p56.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+			<table style="width=100%">
+				<p>Flip and Edge Split Before and After:</p>
+				<tr>
+					<td>
+						<img src="images/p57.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p58.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<p>One issue I ran into was that only one of my triangles in the split was 
+			appearing correctly while two vanished and one was black. I didn’t know 
+			why this was happening until I hovered over the black triangle to see 
+			that it still had halfedges, but the halfedges were in clockwise orientation 
+			rather than CCW. This immediately told me to recheck my diagram, and I 
+			realized that I had accidentally flipped two halfedges in my diagram. Once 
+			I realized this, I was immediately able to fix my issue.
+	   	</p>
+
+		<p>I did not provide edge split support for boundary edges.</p>
+
+		<h3 align="middle">Part 6: Loop subdivision for mesh upsampling</h3>
+
+		<p>I implemented loop subdivision by carefully following the given algorithm. 
+			I also thought about what elements needed to be updated such as the positions 
+			of the vertices. I was initially struggling because some of my faces were 
+			vanishing, but I figured out my issue was because there was a specific new 
+			edge being created by the split algorithm that should not have been flipped.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/p61.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p62.png" align="middle" width="400px" />
+					</td>
+				</tr>
+				</table>
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/p63.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/p64.png" align="middle" width="400px" />
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<p>Based on my observations, sharp corners and edges become smoother as I 
+			continue to undergo loop subdivision. Some sharp corners are still 
+			noticeable though after several iterations of loop subdivision. I do 
+			think that pre-splitting edges could reduce the noticeability of sharp 
+			corners because areas with smaller triangles and more edges typically 
+			tend to be smoother.</p>
+
+		<p>I was able to get the cube to divide symmetrically which I did by splitting 
+			all the faces so that each face of the cube initially had four triangles. 
+			This made me come to the conclusion that the cube is much more likely to 
+			be more symmetric if the mesh that I am performing loop subdivision on is 
+			already symmetric when looking at the edges and triangles. Pre-processing 
+			helps alleviate the problem of asymmetry because pre-processing allows us 
+			to make the mesh symmetric before we perform loop subdivision.</p>
+
+		<p>I have not implemented any extra credit features.</p>
+
+		<h2 align="middle">Section III: Art Competition</h2>
+
+		<p>I did not participate in the art competition. :(</p>
+
+</body>
 </html>
