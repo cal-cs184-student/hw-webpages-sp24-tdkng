@@ -385,7 +385,7 @@
 
 		<h3 align="middle">Part 5: Adaptive Sampling</h3>
 
-		<p></p>
+		<p>Adaptive sampling works by using different sampling rates on different parts of the scene being rendered. This is because we typically need to sample more for detailed scenes while more plain scenes do not need as many samples. I terminate the ray tracing algorithm if a pixel has converged already. To implement this, I would check every 32 samples if it was necessary to converge. I knew a pixel had converged using the condition that I <= maxTolerance * mean where I = 1.96 * standard deviation / n.</p>
 
 		<div align="middle">
 			<table style="width=100%">
