@@ -1,7 +1,418 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 3 index.html here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<style>
+		body {
+			padding: 100px;
+			width: 1000px;
+			margin: auto;
+			text-align: left;
+			font-weight: 300;
+			font-family: 'Open Sans', sans-serif;
+			color: #121212;
+		}
+
+		h1, h2, h3, h4 {
+			font-family: 'Source Sans Pro', sans-serif;
+		}
+	</style>
+	<title>CS 184/284A Rasterizer</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+	<h1 align="middle">CS 184/284A: Computer Graphics and Imaging, Spring 2024</h1>
+	<h1 align="middle">Homework 3: Pathtracer</h1>
+	<h2 align="middle">Timothy Nguyen</h2>
+
+	<br><br>
+
+	<div>
+
+		<h2 align="middle">Overview</h2>
+		<p>In this homework, I implemented a path tracing program that renders images with light sources using ray generation and scene intersection with accelerations. Rays are created, and I checked if these rays intersected with objects in the scene to determine the color of a pixel. Rather than draw rays everywhere, I accelerated the process using bounding boxes around objects to reduce the number of rays needed and speed up the rendering process. I improved image quality using direct and global illumination. These work by drawing rays from a point on the surface of an object to the light source. For global illumination, these rays of light also had to bounce which was implemented using recursion.</p>
+
+		<h3 align="middle">Part 1: Ray Generation and Scene Intersection</h3>
+
+		<p>Starting with ray generation, I first needed to calculate the sensor position of the ray in the camera space. I did so by scaling and transforming corners of the spaces to understand how I should perform the calculation. I then transformed the sensor position from the camera to world space and normalized this vector. This vector became the direction of the ray being transformed. The origin of the ray is simply the position of the camera since that is the POV from which we are generating the view. Several rays are then generated across a pixel in order to estimate the pixel’s radiance thus giving a good estimate for the pixel’s color. This is done with a for-loop that generates some number of samples and an equal number of rays. We then calculate the radiance of each sample pixel and average out all radiance values for the pixel outside the loop. These rays are then tested for how they bounce off of walls or objects within the image being generated using intersection. Upon finding an intersection, we calculate the positions and normals in order to figure out shading and lighting work at the point of intersection.</p>
+		<p>For triangle intersection, I used the Möller–Trumbore algorithm which uses barycentric coordinates to represent the intersection of the ray and triangle. I first checked if the ray is parallel to the triangle since this would cause issues if we try to perform further calculations. I found the coefficients of the barycentric coordinates of the intersection and verified whether or not the ray was intersecting a point inside the triangle or not in which case I would exit the function. I then updated the max_t parameter of the ray and the corresponding values for the intersection object.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q11.png" align="middle" width="400px" />
+						<p>Room with Spheres</p>
+					</td>
+					<td>
+						<img src="images/q12.png" align="middle" width="400px" />
+						<p>Room with Gems</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q13.png" align="middle" width="400px" />
+						<p>Room with Coil</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+
+		<h3 align="middle">Part 2: Bounding Volume Hierarchy</h3>
+
+		<p>My BVH construction algorithm starts by making a bounding box around all primitives. If the current node has a small enough number of primitives, then we make the current node a leaf node. Otherwise, the current node should be an internal node, and we must keep recursing. We find and split the largest dimension of the bounding box so that elements will go in either the left or right node. The split on the largest dimension was decided by using the average centroid of all primitives’ bounding boxes. Then I recursed on both the left and right child nodes of the current node. </p>
+
+	   	<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q21.png" align="middle" width="400px" />
+						<p>Max Planck</p>
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q22.png" align="middle" width="400px" />
+						<p>With BVH Acceleration</p>
+					</td>
+					<td>
+						<img src="images/q23.png" align="middle" width="400px" />
+						<p>Without BVH Acceleration</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		   <div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q24.png" align="middle" width="400px" />
+						<p>Dragon in Room</p>
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q25.png" align="middle" width="400px" />
+						<p>With BVH Acceleration</p>
+					</td>
+					<td>
+						<img src="images/q26.png" align="middle" width="400px" />
+						<p>Without BVH Acceleration</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<p>It is clear that rendering time is much faster when using BVH Acceleration as opposed to not using it. This makes sense intuitively because of the fact that we are using bounding boxes to reduce the amount of area that must be searched. Additionally, the runtime with BVH Acceleration is in log time compared to linear time without. On the other hand, I did not expect that there would be more rays used for BVH Acceleration than without BVH Acceleration which is seen in Max Planck. However, I can understand that this is possible due to the overhead from building a BVH. This could also be unique to the scene because of the amount of details that go into displaying the image.</p>
+
+		<h3 align="middle">Part 3: Direct Illumination</h3>
+
+		<p>For the hemisphere implementation, I collect num_samples samples. For each sample in the object space hemisphere, I create a ray with an origin at the hit point and a direction based on our sample in the world view. I also set the ray’s min_t value to EPS_F as a small offset for errors. If the ray finds an intersection, I add to our light output the product of the intersection’s BSDF functional value, the light generated by the source (emission), cosine of the sample, and 2 * PI / num_samples.</p>
+		<p>For the importance implementation, I iterate over all lights in the scene. For each light, if the light is a delta light I only need to take 1 sample. Otherwise, I must take ns_area_light samples. Either way, I create a ray with an origin at the hit point and direction based on the sample. I also make sure to set the ray’s min_t value to EPS_F again, and the max_t value to the distance from light minus EPS_F. If I do not find an intersection, I add to the light output the product of the BSDF functional value, the sample taken, the dot product of the ray’s direction and the intersection’s normal, and 1/pdf. For lights that are not a delta light, I also have to average out the light output by the number of samples taken.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<p>Hemisphere Sampling</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q31.png" align="middle" width="400px" />
+						<p>Lambertian Spheres in Room</p>
+						<p>16 rays/pixel, 8 samples/area</p>
+					</td>
+					<td>
+						<img src="images/q32.png" align="middle" width="400px" />
+						<p>Lambertian Spheres in Room</p>
+						<p>64 rays/pixel, 16 pixels/area</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Importance Sampling</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q33.png" align="middle" width="400px" />
+						<p>Lambertian Spheres in Room</p>
+						<p>16 rays/pixel, 8 samples/area</p>
+					</td>
+					<td>
+						<img src="images/q34.png" align="middle" width="400px" />
+						<p>Lambertian Spheres in Room</p>
+						<p>64 rays/pixel, 16 pixels/area</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<p>When using hemisphere sampling, we can observe that shadows are much darker while highlights are much brighter. This can be attributed to the way that hemisphere sampling works. Samples are taken from an even distribution over a hemisphere, but this method typically favors taking samples from directions that are normal to the hemisphere. Thus, this preference causes darker shadows. Meanwhile, light sampling does not create a preference for any particular light source. The contribution of each ray is considered individually which is why ambient light appears to be more prominent in this sampling method. We also find that typically, importance sampling is faster.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<p>Noise Level Comparison </p>
+						<p>1 sample/pixel, Light Sampling</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q35.png" align="middle" width="400px" />
+						<p>1 light ray</p>
+					</td>
+					<td>
+						<img src="images/q36.png" align="middle" width="400px" />
+						<p>4 light rays</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q37.png" align="middle" width="400px" />
+						<p>16 light rays</p>
+					</td>
+					<td>
+						<img src="images/q38.png" align="middle" width="400px" />
+						<p>64 light rays</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<p>With only 1 light ray, the noise is very noticeable because of how the bunny’s shadow has a lot of dark spots spread throughout that look almost like dust. The bunny itself also has a lot of noticeable dark specks. With 4 light rays, we still see dark specks but they are more concentrated in the right areas where the shadow should be. With 16 light rays, noise is further reduced though there are still a few dark spots. The bunny also appears to be smooth now. With 64 light rays, the image’s shadows now look almost like they would in reality.</p>
+
+		<h3 align="middle">Part 4: Global Illumination</h3>
+
+		<p>For my indirect lighting function, I started by obtaining a sample from the intersection’s BSDF function and setting the light output to include one bounce radiance. I also created a new ray with origin at the hit point, direction based on the sample in world space, and a depth of the current ray’s depth minus 1. Using this new ray, I check if it intersects with the BVH. If bounces were being accumulated, I would check if russian roulette allowed me to continue. If so, I checked if there was an intersection with the BVH and that the new ray’s depth was at least 1. Under these conditions, there would still be another bounce which requires another recursive call. Otherwise, I would just return the current light output. If bounces were not being accumulated, I recursed until the new ray’s depth was zero and returned the light output. Light output was calculated as light * abs_cos_theta(w_in) * sample / pdf. For russian roulette, I also divided by 1 - rr.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Global Illumination w/ 1024 samples/pixel</p>
+				<tr>
+					<td>
+						<img src="images/q41.png" align="middle" width="400px" />
+						<p>Blob</p>
+					</td>
+					<td>
+						<img src="images/q42.png" align="middle" width="400px" />
+						<p>Bunny in Room</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Only Direct Illumination vs Only Indirect Illumination w/ 1024 samples/pixel</p>
+				<tr>
+					<td>
+						<img src="images/q43.png" align="middle" width="400px" />
+						<p>Only Direct</p>
+					</td>
+					<td>
+						<img src="images/q44.png" align="middle" width="400px" />
+						<p>Only Indirect</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Comparison on m Bounces of Light w/o Accumulating Bounces</p>
+				<tr>
+					<td>
+						<img src="images/q410.png" align="middle" width="400px" />
+						<p>m = 0</p>
+					</td>
+					<td>
+						<img src="images/q45.png" align="middle" width="400px" />
+						<p>m = 1</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q46.png" align="middle" width="400px" />
+						<p>m = 2</p>
+					</td>
+					<td>
+						<img src="images/q47.png" align="middle" width="400px" />
+						<p>m = 3</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q48.png" align="middle" width="400px" />
+						<p>m = 4</p>
+					</td>
+					<td>
+						<img src="images/q49.png" align="middle" width="400px" />
+						<p>m = 5</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<p>When m = 2 and m = 3, I notice that the image becomes much darker than when m = 1 but still has ambient light which can be seen in the corners of the room. Like rasterization, further bounces of light contribute to making the image more smooth and realistic. However, these bounces of light improve the image’s quality in a way better than rasterization alone could. </p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Comparison on m Bounces of Light w/ Accumulating Bounces</p>
+				<tr>
+					<td>
+						<img src="images/q410.png" align="middle" width="400px" />
+						<p>m = 0</p>
+					</td>
+					<td>
+						<img src="images/q411.png" align="middle" width="400px" />
+						<p>m = 1</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q412.png" align="middle" width="400px" />
+						<p>m = 2</p>
+					</td>
+					<td>
+						<img src="images/q413.png" align="middle" width="400px" />
+						<p>m = 3</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q414.png" align="middle" width="400px" />
+						<p>m = 4</p>
+					</td>
+					<td>
+						<img src="images/q415.png" align="middle" width="400px" />
+						<p>m = 5</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Comparison on m Bounces of Light w/ Accumulating Bounces + Russian roulette</p>
+				<tr>
+					<td>
+						<img src="images/q416.png" align="middle" width="400px" />
+						<p>m = 0</p>
+					</td>
+					<td>
+						<img src="images/q417.png" align="middle" width="400px" />
+						<p>m = 1</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q418.png" align="middle" width="400px" />
+						<p>m = 2</p>
+					</td>
+					<td>
+						<img src="images/q419.png" align="middle" width="400px" />
+						<p>m = 3</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q420.png" align="middle" width="400px" />
+						<p>m = 4</p>
+					</td>
+					<td>
+						<img src="images/q421.png" align="middle" width="400px" />
+						<p>m = 1000</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Comparison on s samples/pixel w/ 4 Light rays + Accumulating Bounces</p>
+				<tr>
+					<td>
+						<img src="images/q422.png" align="middle" width="400px" />
+						<p>s = 1</p>
+					</td>
+					<td>
+						<img src="images/q423.png" align="middle" width="400px" />
+						<p>s = 2</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q424.png" align="middle" width="400px" />
+						<p>s = 4</p>
+					</td>
+					<td>
+						<img src="images/q425.png" align="middle" width="400px" />
+						<p>s = 8</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q426.png" align="middle" width="400px" />
+						<p>s = 16</p>
+					</td>
+					<td>
+						<img src="images/q427.png" align="middle" width="400px" />
+						<p>s = 64</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q428.png" align="middle" width="400px" />
+						<p>s = 1024</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<h3 align="middle">Part 5: Adaptive Sampling</h3>
+
+		<p></p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<p>Adaptive Sampling Results</p>
+				<p>1 sample/light, m = 5 max ray depth</p>
+				<tr>
+					<td>
+						<img src="images/q51.png" align="middle" width="400px" />
+						<p>Sampling Rate</p>
+					</td>
+					<td>
+						<img src="images/q52.png" align="middle" width="400px" />
+						<p>Result</p>
+					</td>
+				</tr>
+				<!-- <tr>
+					<td>
+						<img src="images/q53.png" align="middle" width="400px" />
+						<p>Sampling Rate</p>
+					</td>
+					<td>
+						<img src="images/q54.png" align="middle" width="400px" />
+						<p>Result</p>
+					</td>
+				</tr> -->
+		   	</table>
+	   	</div>
+
+</body>
 </html>
