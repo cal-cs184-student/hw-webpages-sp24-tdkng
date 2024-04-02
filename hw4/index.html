@@ -1,7 +1,422 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Homework 4 index.html here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<style>
+		body {
+			padding: 100px;
+			width: 1000px;
+			margin: auto;
+			text-align: left;
+			font-weight: 300;
+			font-family: 'Open Sans', sans-serif;
+			color: #121212;
+		}
+
+		h1, h2, h3, h4 {
+			font-family: 'Source Sans Pro', sans-serif;
+		}
+	</style>
+	<title>CS 184/284A Rasterizer</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
+
+
+<body>
+
+	<h1 align="middle">CS 184/284A: Computer Graphics and Imaging, Spring 2024</h1>
+	<h1 align="middle">Homework 4: Cloth Sim</h1>
+	<h2 align="middle">Timothy Nguyen</h2>
+
+	<div>
+
+		<h2 align="middle">Overview</h2>
+		<p>In this project, I implemented a simulation of cloth using a mesh grid made of point masses and springs. To simulate realistic cloth, I computed the total forces acting on the points that made the mesh to determine how the mesh would behave at each timestep. I accounted for collisions the cloth could make with other objects or itself by fixing the positions of point masses that clipped through objects that they should not have. Finally, I implemented a GLSL shader program that uses vertex shaders and fragment shaders to create the effects of Blinn-Phong shadows and textured material.</p>
+
+		<h2 align="middle">Part 1: Masses and Springs</h2>
+		
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q11.png" align="middle" width="400px" />
+						<p>Cloth Wireframe Structure</p>
+					</td>
+					<td>
+						<img src="images/q12.png" align="middle" width="400px" />
+						<p>Wireframe w/o Shearing</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q13.png" align="middle" width="400px" />
+						<p>Wireframe w/ Ony Shearing</p>
+					</td>
+					<td>
+						<img src="images/q14.png" align="middle" width="400px" />
+						<p>Wireframe w/ All Constraints</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+
+		<h2 align="middle">Part 2: Simulation via Numerical Integration</h2>
+
+	   	<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Low ks (ks = 5 N/m)</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q21.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q22.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<tr>
+						<p>High ks (ks = 50,000 N/m)</p>
+					</tr>
+					<td>
+						<img src="images/q23.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q24.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<p>When comparing between low and high ks values, I noticed that the cloth folds over itself with high ks values but appears to fall flat at rest when using a low ks value. I think this phenomenon takes place for a low ks value because the force between each point mass is much weaker which makes the cloth appear to be stretchy. On the other hand with a high ks value, the cloth appears to try to hold onto its rectangular shape even when falling.</p>
+	   	</div>
+
+	   	<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Low Density (density = 1 g/cm^2)</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q25.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q26.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<tr>
+						<p>High Density (density = 150 g/cm^2)</p>
+					</tr>
+					<td>
+						<img src="images/q27.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q28.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<p>For density values, I noticed a similar but opposite effect from the comparison on ks values. For a high density, the cloth appears to be very loose and stretchy and will still fold over itself at rest. The cloth also droops further down in the middle when at rest which shows its flexibility. For a low density, I see the rectangular shape again that the cloth refuses to let go of. The cloth appears rigid, inflexible, and potentially a little heavier.</p>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Low Damping (damping = 0%)</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q29.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q210.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<tr>
+						<p>High Damping (damping = 100%)</p>
+					</tr>
+					<td>
+						<img src="images/q211.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q212.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<p>For a low damping percentage, the cloth falls much faster and swings back and forth for a while even after falling before eventually coming to rest. The cloth has a lot of interesting folds which just shows how rapidly the cloth falls. Meanwhile with a high damping percentage, the cloth falls extremely slowly and doesn’t appear to fold very much when falling because of how slow the fall is. The cloth then falls into its flat vertical position at rest without swinging at all. Intuitively, this makes sense because the damping term determines how resistant the cloth’s point masses are to any forces.</p>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q211.png" align="middle" width="400px" />
+						<p>Cloth w/ 4 Pinned Corners</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<h2 align="middle">Part 3: Handling Collisions with Other Objects</h2>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<p>Cloth on Sphere</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q31.png" align="middle" width="400px" />
+						<p>ks = 500 N/m</p>
+					</td>
+					<td>
+						<img src="images/q32.png" align="middle" width="400px" />
+						<p>ks = 5,000 N/m</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q33.png" align="middle" width="400px" />
+						<p>ks = 50,000 N/m</p>
+					</td>
+				</tr>
+		   	</table>
+
+			<p>For a smaller ks value, the cloth appears to be much bendable and stretchier which explains why the cloth appears to droop much more. For a higher ks value, the cloth is more stiff and doesn’t bend as easily. This makes sense because the total forces acting on the cloth’s point masses are weaker with a lower ks value. With less force, point masses will move more with each time step because of the positive correlation between force and acceleration. It’s also worth noting that the cloth eventually slid off for all ks values.</p>
+	   	</div>
+		
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q34.png" align="middle" width="400px" />
+						<p>Cloth on Plane</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<h2 align="middle">Part 4: Handling Self-Collisions</h2>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Cloth Self-Collision Observation</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q41.png" align="middle" width="400px" />
+						<p>Initial Self-Collision</p>
+					</td>
+					<td>
+						<img src="images/q42.png" align="middle" width="400px" />
+						<p>More Self-Collisions</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q43.png" align="middle" width="400px" />
+						<p>Final Resting State</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Low Density (density = 1 g/cm^2)</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q44.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q45.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<tr>
+						<p>High Density (density = 150 g/cm^2)</p>
+					</tr>
+					<td>
+						<img src="images/q46.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q47.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<p>The cloth with a lower density folds on itself but not nearly as much as the cloth with high density. At a lower density, the cloth holds onto its horizontal shape and does not appear to fold over itself for any point masses on the same horizontal level. In its final resting state, the cloth also appears to undo the earlier folds and flatten out as much as it can. For a higher density cloth, I can immediately observe that the cloth folds much more because of the wide and abrupt variations in color across the cloth. In the resting state, there are a lot of folds that still remain though difficult to see because they are being covered by another fold.</p>
+	   	</div>
+
+		   <div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Low ks Value (ks = 5 N/m)</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q48.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q49.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<table style="width=100%">
+				<tr>
+					<tr>
+						<p>High ks Value (ks = 50,000 N/m)</p>
+					</tr>
+					<td>
+						<img src="images/q410.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q411.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+
+			<p>The cloth at low and high ks values continues to resemble the cloth at high and low density values. The low ks-value cloth folds a lot and appears to be stretchier and less resistant to force in both the falling and resting states. Meanwhile, the high ks-value cloth remains somewhat stiff and folds less. This is indicative of the stronger forces acting between point masses that hold them together. In the resting state, we again see the cloth undoes some of the folds seen while falling.</p>
+		</div>
+
+		<h2 align="middle">Part 5: Shaders</h2>
+
+		<p>Shaders are programs that take in some parameters of some mesh to perform operations that change the shading, lighting, and color of the mesh pixel by pixel. Shaders are of two types: vertex shaders and fragment shaders. Vertex shaders take in several inputs for a single vertex and output properties of the vertex for further operations. The vertex shader is responsible for a vertex’s position and normal which can affect the physical shape of the mesh to create material effects if necessary. The output of a vertex shader is inputted to the corresponding fragment shader. In the fragment shader, the vertices are processed to output a single vec4 which determines the color of a pixel. Lightness/darkness of a pixel is chosen here using diffuse or Blinn-Phong shading. Physical texture effects can also be created by using bump mapping. Visual texture mapping can be used to map an image or material onto the mesh.</p>
+
+		<p>Blinn-Phong shading works by combining ambient lighting, specular reflection, and diffuse shading. The light for a single pixel is calculated using all three techniques in the formula for Blinn-Phong shading with properties of the given vertex.</p>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q51.png" align="middle" width="400px" />
+						<p>Only Ambient Light</p>
+					</td>
+					<td>
+						<img src="images/q52.png" align="middle" width="400px" />
+						<p>Only Diffuse Light</p>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q53.png" align="middle" width="400px" />
+						<p>Only Specular Light</p>
+					</td>
+					<td>
+						<img src="images/q54.png" align="middle" width="400px" />
+						<p>Blinn-Phong Shading</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<td>
+						<img src="images/q55.png" align="middle" width="400px" />
+						<p>Custom Texture Mapping</p>
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Bump Mapping vs Displacement Mapping</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q56.png" align="middle" width="400px" />
+						<p>Bump Mapping</p>
+					</td>
+					<td>
+						<img src="images/q57.png" align="middle" width="400px" />
+						<p>Displacement Mapping</p>
+					</td>
+				</tr>
+		   	</table>
+			<p>Bump and displacement mapping both map textures onto the mesh and sphere, but displacement mapping further adds texture by distorting the normals of every vertex. The effects of displacement mapping are hard to notice for the sphere, but displacement mapping does give a more realistic appearance. Smooth surfaces in reality are rarely actually smooth. Meanwhile, bump mapping is easier to compute.</p>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Bump Mapping</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q58.png" align="middle" width="400px" />
+						<p>16 x 16 resolution</p>
+					</td>
+					<td>
+						<img src="images/q59.png" align="middle" width="400px" />
+						<p>128 x 128 resolution</p>
+					</td>
+				</tr>
+		   	</table>
+
+			<p>The difference in the coarseness of the sphere is very hard to notice for bump mapping. The surface of the sphere appears roughly the same in both images though the sphere’s surface is slightly more blurry in the 16 by 16 resolution. Logically, the sphere is more coarse in the higher resolution image.</p>
+	   	</div>
+
+		<div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Displacement Mapping</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q510.png" align="middle" width="400px" />
+						<p>16 x 16 resolution</p>
+					</td>
+					<td>
+						<img src="images/q511.png" align="middle" width="400px" />
+						<p>128 x 128 resolution</p>
+					</td>
+				</tr>
+		   	</table>
+
+			<p>For displacement mapping, it is easier to see that the sphere’s surface is rougher at a higher resolution. It’s easy to see that the sphere has ridges and is not smooth. In the lower resolution sphere, the roughness of the sphere is smoothed out as a tradeoff for computational efficiency.</p>
+	   	</div>
+
+		   <div align="middle">
+			<table style="width=100%">
+				<tr>
+					<p>Mirror Mapping</p>
+				</tr>
+				<tr>
+					<td>
+						<img src="images/q512.png" align="middle" width="400px" />
+					</td>
+					<td>
+						<img src="images/q513.png" align="middle" width="400px" />
+					</td>
+				</tr>
+		   	</table>
+	   	</div>
+	</div>
+</body>
 </html>
